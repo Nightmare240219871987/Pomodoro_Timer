@@ -1,0 +1,6 @@
+#todo
+-> menus anlegen + eingaben                                                 -- fertig --
+-> Aufgabe als Liste hinzufügen, löschen + in eine Datei schreiben (JSON)
+-> Timer bauen (Asynchron, Future, Console Ansicht)
+-> Timer in Progressbar anzeigen lassen
+-> Anzeigen der Task im main menu -> Aktuelle Task                          -- fertig --

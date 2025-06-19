@@ -1,0 +1,22 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "fancy_t",
+      "rootUri": "../libraries/Fancy_T",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
+    },
+    {
+      "name": "pomodoro_timer",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
+    }
+  ],
+  "generator": "pub",
+  "generatorVersion": "3.8.1",
+  "flutterRoot": "file:///opt/homebrew/Caskroom/flutter/3.32.3/flutter",
+  "flutterVersion": "3.32.3",
+  "pubCache": "file:///Users/marcusschmidt/.pub-cache"
+}

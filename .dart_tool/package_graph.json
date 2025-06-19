@@ -1,0 +1,21 @@
+{
+  "roots": [
+    "pomodoro_timer"
+  ],
+  "packages": [
+    {
+      "name": "pomodoro_timer",
+      "version": "0.0.0",
+      "dependencies": [
+        "fancy_t"
+      ],
+      "devDependencies": []
+    },
+    {
+      "name": "fancy_t",
+      "version": "0.0.0",
+      "dependencies": []
+    }
+  ],
+  "configVersion": 1
+}

@@ -1,0 +1,7 @@
+name: pomodoro_timer
+environment:
+  sdk: '^3.8.0'
+
+dependencies:
+  fancy_t:
+    path: "./libraries/Fancy_T"
