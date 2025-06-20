@@ -1,18 +1,117 @@
+import 'dart:isolate';
 import 'package:fancy_t/fancy_t.dart';
 import 'dart:io';
 
 // Erstellung der benötigten globalen Objekte
-Writer w = new Writer();
-List<String> taskList = ["Aufgabe 1", "Aufgabe 2", "Aufgabe 3"];
+ProgressBar? pb; // progress bar für den Timer
+Stopwatch? sw; // Stopuhr für den Timer
+Writer? w; // Writer für Normalen Text
+List<String> taskList = []; // Liste für die Abzuarbeiten Aufgaben
+Menu? m; // Menu Instanz von fancy_t für das Zeichnen des Menu-Rahmens
+const int maxWidth = 60; // Maximale Weite für anzeigen
+double count = 0.0; // Durchlauf Zähler für eine Bedingung
+bool question = true; // Wert wechselt jedem Cycle durchläuft (ähnlich watchdog)
+bool pause = false; // Bedingung für pausen
+const int iWork = 25; // Arbeitzeit global definiert.
+const int iPause = 5; // Pause global definiert.
+const int iBigPause = 30; // Große Pause definiert.
 
+// Main-Funktion hier startet alles
 void main() {
-  // einrichtung Writer
-  w.isUnderline = true;
-  w.isItalic = true;
-  w.setForegroundColor(StdFgColor.white);
-
+  setup();
   mainMenu();
-  tasks();
+}
+
+void writeListToFile(List<String> tasksList) {}
+
+// Diese Funktion handled die Business-Logik einen Timer
+void cycle(int minutes) {
+  // Eingabe
+  // Verarbeitung
+  sw!.start();
+  count += 0.5;
+  if (count == 4.0) {
+    count = 0.0;
+  }
+  int limit = 60 * 1000 * minutes; // setzt das Limit für den Timer
+  // Ausgabe
+  Terminal.clearScreen();
+  if (!pause) {
+    showCurrentTask();
+  } else {
+    w!.write("Pause!");
+  }
+  m!.header("Timer läuft", color: StdFgColor.white, align: Alignment.CENTER);
+  m!.row(
+    "$minutes Min",
+    color: StdFgColor.white,
+    align: Alignment.CENTER,
+    end: true,
+  );
+  // Schleife für das updaten der Zeit und der ProgressBar
+  while (sw!.elapsedMilliseconds <= limit) {
+    sleep(Duration(milliseconds: 80)); // UpdateInterval: 80ms bei 0 Flackern
+    int remain = limit - sw!.elapsedMilliseconds;
+    double value = (100 / minutes * remain / 1000 / 60);
+    pb!.showProgBar(value.round());
+  }
+  // Stopuhr wird gestoppt und zurückgetzt (damit man sie wieder starten kann)
+  sw!.stop();
+  sw!.reset();
+  // startet eigenen Thread für die Wieder gabe des Sounds
+  Isolate.run(playBell);
+  if (question) {
+    question = false;
+    pause = true;
+    String choice = textInput("Hast du Deine Aufgabe geschafft (J / N) : ");
+    switch (choice) {
+      case "j" || "J":
+        deleteFirstTask(taskList);
+        if (count >= 3.5) {
+          count = 0;
+          return cycle(iBigPause);
+        }
+        return cycle(iPause);
+      case "n" || "N":
+        if (count >= 3.5) {
+          return cycle(iBigPause);
+        }
+        return cycle(iPause);
+      default:
+        choice = textInput("\r\nHast du Deine Aufgabe geschafft (J / N) : ");
+    }
+  } else {
+    question = true;
+    pause = false;
+  }
+}
+
+void playBell() async {
+  await Process.run("afplay", ["./audio/bell.mp3"]);
+}
+
+// Zeigt die Aktuelle Task an mit Fehler überprüfung
+void showCurrentTask() {
+  if (taskList.length == 0) {
+    w!.write("Aktuelle Aufgabe : Keine");
+  } else {
+    w!.write("Aktuelle Aufgabe : ${taskList[0]}");
+  }
+}
+
+// Richtet die globalen Objekte ein
+void setup() {
+  // Einrichtung Writer für Normalen Text
+  w = new Writer();
+  w!.isItalic = true;
+  w!.setForegroundColor(StdFgColor.white);
+  m = new Menu(width: maxWidth);
+  m!.isBold = true;
+  m!.frameColor = StdFgColor.red;
+  pb = new ProgressBar(width: maxWidth, isBold: true);
+  pb!.fullBarColor = StdFgColor.green;
+  pb!.emptyColor = StdFgColor.white;
+  sw = new Stopwatch();
 }
 
 // Alle Aufgaben anzeigen lassen
@@ -25,13 +124,12 @@ void showTasks(List<String> tasksList) {
     menuBuilder("Aufgaben", tmp);
   }
   choiceInput("Drück eine belibige Taste.");
-  tasks();
 }
 
-// Test eingabe
+// Funktion für die Eingabe eines Textes
 String textInput(String prompt) {
-  w.write(prompt, newLine: false);
-  String? choice = stdin.readLineSync()!;
+  w!.write(prompt, newLine: false);
+  String? choice = stdin.readLineSync();
   if (choice == null) {
     return "";
   }
@@ -49,12 +147,12 @@ void deleteFirstTask(List<String> tasksList) {
 void AddNewTask(List<String> tasksList) {
   Terminal.clearScreen();
   String text = textInput("Gib deine Aufgabe ein : ");
-  taskList.add(text);
+  tasksList.add(text);
 }
 
-// Funktion für die eingabe der Auswahl
+// Funktion für die Eingabe einer Zahl
 int choiceInput(String prompt) {
-  w.write(prompt, newLine: false);
+  w!.write(prompt, newLine: false);
   int? choice = int.tryParse(stdin.readLineSync()!);
   if (choice == null) {
     return 0;
@@ -65,71 +163,72 @@ int choiceInput(String prompt) {
 // Funktion zum erstellen der Menu´s
 void menuBuilder(String title, List<String> rows) {
   Terminal.clearScreen();
-  if (taskList.length == 0) {
-    w.write(
-      " Aktuelle Aufgabe : Es sind keine Aufgaben Verfügbar",
-      newLine: true,
-    );
-  } else {
-    w.write(" Aktuelle Aufgabe : ${taskList[0]}", newLine: true);
-  }
-  Menu m = new Menu(width: 40);
-  m.isBold = true;
-  m.frameColor = StdFgColor.red;
-  m.header(title, align: Alignment.CENTER, start: true, end: true);
+  showCurrentTask();
+  m!.header(
+    title,
+    color: StdFgColor.white,
+    align: Alignment.CENTER,
+    start: true,
+    end: true,
+  );
   int maxLength = rows.reduce((a, b) => a.length > b.length ? a : b).length;
   for (int i = 0; i < rows.length; i++) {
     int tmp = maxLength - rows[i].length;
     rows[i] += " " * tmp;
     if (i == rows.length - 1) {
-      m.row(rows[i], align: Alignment.CENTER, end: true);
+      m!.row(
+        rows[i],
+        color: StdFgColor.white,
+        align: Alignment.CENTER,
+        end: true,
+      );
     } else {
-      m.row(rows[i], align: Alignment.CENTER);
+      m!.row(rows[i], color: StdFgColor.white, align: Alignment.CENTER);
     }
   }
 }
 
-// MainMenu
+// Zeigt das MainMenu
 void mainMenu() {
   menuBuilder("Pomodoro-Timer", [
-    "1. Aufgaben verwalten",
-    "2. Timer starten (25 Min arbeit)",
-    "3. Timer starten (5 Min Pause)",
-    "4. Beenden",
+    "1. Backlog Bearbeiten",
+    "2. Pomodoro starten",
+    "3. Beenden",
   ]);
   switch (choiceInput("Bitte Wähle : ")) {
     case 1:
-      tasks();
+      taskMgmt();
     case 2:
+      cycle(iWork);
+      mainMenu();
     case 3:
-    case 4:
       exit(0);
     default:
+      mainMenu();
   }
 }
 
-// Aufgaben Verwaltung
-void tasks() {
-  Terminal.clearScreen();
-  List<String> rows = [
+// Task Verwalung wird angezeigt
+void taskMgmt() {
+  menuBuilder("Aufgaben Verwalten", [
     "1. Aufgabe hinzufügen.",
     "2. Aufgabe als erledigt Makieren",
     "3. Aufgaben anzeigen",
     "4. Zurück",
-  ];
-  menuBuilder("Aufgaben Verwalten", rows);
-
+  ]);
   switch (choiceInput("Bitte wähle : ")) {
     case 1:
       AddNewTask(taskList);
+      taskMgmt();
     case 2:
       deleteFirstTask(taskList);
-      tasks();
+      taskMgmt();
     case 3:
       showTasks(taskList);
-      tasks();
+      taskMgmt();
     case 4:
       mainMenu();
     default:
+      taskMgmt();
   }
 }
