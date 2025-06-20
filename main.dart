@@ -18,11 +18,34 @@ const int iBigPause = 30; // Große Pause definiert.
 
 // Main-Funktion hier startet alles
 void main() {
+  taskList = readListToFile();
   setup();
   mainMenu();
 }
 
-void writeListToFile(List<String> tasksList) {}
+void writeListToFile(List<String> tasksList) async {
+  File f = new File("backlog.txt");
+  if (f.exists() == true) {
+    f.deleteSync();
+  } else {
+    f.createSync();
+    IOSink sink = f.openWrite();
+    sink.writeAll(tasksList, "\n");
+    await sink.flush();
+    await sink.close();
+  }
+}
+
+List<String> readListToFile() {
+  File f = new File("backlog.txt");
+  if (f.exists() == true) {
+    f.delete();
+    return [];
+  } else {
+    f.createSync();
+    return f.readAsLinesSync();
+  }
+}
 
 // Diese Funktion handled die Business-Logik einen Timer
 void cycle(int minutes) {
@@ -140,6 +163,7 @@ String textInput(String prompt) {
 void deleteFirstTask(List<String> tasksList) {
   if (tasksList.length != 0) {
     tasksList.removeAt(0);
+    Isolate.run(() => writeListToFile(tasksList));
   }
 }
 
@@ -148,6 +172,7 @@ void AddNewTask(List<String> tasksList) {
   Terminal.clearScreen();
   String text = textInput("Gib deine Aufgabe ein : ");
   tasksList.add(text);
+  Isolate.run(() => writeListToFile(tasksList));
 }
 
 // Funktion für die Eingabe einer Zahl
@@ -190,10 +215,10 @@ void menuBuilder(String title, List<String> rows) {
 
 // Zeigt das MainMenu
 void mainMenu() {
-  menuBuilder("Pomodoro-Timer", [
-    "1. Backlog Bearbeiten",
-    "2. Pomodoro starten",
-    "3. Beenden",
+  menuBuilder("🍅Pomodoro-Timer", [
+    "1. 📔Backlog Bearbeiten",
+    "2. 🍅Pomodoro starten",
+    "3. 🚪Beenden",
   ]);
   switch (choiceInput("Bitte Wähle : ")) {
     case 1:
@@ -211,10 +236,10 @@ void mainMenu() {
 // Task Verwalung wird angezeigt
 void taskMgmt() {
   menuBuilder("Aufgaben Verwalten", [
-    "1. Aufgabe hinzufügen.",
-    "2. Aufgabe als erledigt Makieren",
-    "3. Aufgaben anzeigen",
-    "4. Zurück",
+    "1. 📔Aufgabe hinzufügen.",
+    "2. 📗Aufgabe ist erledigt",
+    "3. 📖Aufgaben anzeigen",
+    "4. 👈Zurück",
   ]);
   switch (choiceInput("Bitte wähle : ")) {
     case 1:

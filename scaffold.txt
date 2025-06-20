@@ -1,8 +1,9 @@
 #todo
 -> menus anlegen + eingaben                                                 -- Fertig --
--> Aufgabe als Liste hinzufügen, löschen + in eine Datei schreiben (JSON)   -- Ausstehend --
+-> Aufgabe als Liste hinzufügen, löschen + in eine Datei schreiben (JSON)   -- Fertig --
 -> Timer bauen ( Console Ansicht, ist Synchron geworden)                    -- Fertig -- 
 -> Timer in Progressbar anzeigen lassen                                     -- Fertig --
 -> Anzeigen der Task im main menu -> Aktuelle Task                          -- Fertig --
 -> Refactoring und laufzeitvereinfachung                                    -- Fertig --    
 -> Sound ausgabe wenn Timer abläuft                                         -- Fertig --
+-> Runes benutzen                                                           -- Ausstehend --
