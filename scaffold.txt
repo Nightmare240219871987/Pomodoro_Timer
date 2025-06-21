@@ -6,4 +6,4 @@
 -> Anzeigen der Task im main menu -> Aktuelle Task                          -- Fertig --
 -> Refactoring und laufzeitvereinfachung                                    -- Fertig --    
 -> Sound ausgabe wenn Timer abläuft                                         -- Fertig --
--> Runes benutzen                                                           -- Ausstehend --
+-> Runes benutzen                                                           -- Fertig --

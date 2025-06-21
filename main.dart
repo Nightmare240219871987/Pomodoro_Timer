@@ -215,10 +215,10 @@ void menuBuilder(String title, List<String> rows) {
 
 // Zeigt das MainMenu
 void mainMenu() {
-  menuBuilder("🍅Pomodoro-Timer", [
-    "1. 📔Backlog Bearbeiten",
-    "2. 🍅Pomodoro starten",
-    "3. 🚪Beenden",
+  menuBuilder("🍅 Pomodoro-Timer", [
+    "1. Backlog Bearbeiten",
+    "2. Pomodoro starten",
+    "3. Beenden",
   ]);
   switch (choiceInput("Bitte Wähle : ")) {
     case 1:
@@ -236,10 +236,10 @@ void mainMenu() {
 // Task Verwalung wird angezeigt
 void taskMgmt() {
   menuBuilder("Aufgaben Verwalten", [
-    "1. 📔Aufgabe hinzufügen.",
-    "2. 📗Aufgabe ist erledigt",
-    "3. 📖Aufgaben anzeigen",
-    "4. 👈Zurück",
+    "1. Aufgabe hinzufügen.",
+    "2. Aufgabe ist erledigt",
+    "3. Aufgaben anzeigen",
+    "4. Zurück",
   ]);
   switch (choiceInput("Bitte wähle : ")) {
     case 1:
